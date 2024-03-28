@@ -14,6 +14,7 @@ extension NSNotification.Name {
 
 @available(iOS 16.0, *)
 public class NativeQrPlugin: UIViewController, FlutterPlugin, DataScannerViewControllerDelegate {
+    print('1. NativeQrPlugin')
     private var successObserver : NSObjectProtocol?
     private var cancelObserver : NSObjectProtocol?
 
@@ -50,25 +51,30 @@ public class NativeQrPlugin: UIViewController, FlutterPlugin, DataScannerViewCon
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
+        print('2. reghister')
         let channel = FlutterMethodChannel(name: "native_qr", binaryMessenger: registrar.messenger())
         let instance = NativeQrPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
     
     private func cleanupAndClose(){
+        print('3. cleanupAndClose')
         DispatchQueue.main.async { [weak self] in
             self?.viewController.stopScanning()
             self?.viewController.dismiss(animated: true)
         }
+        print(3.1 stopScanning)
         NotificationCenter.default.removeObserver(successObserver!)
         NotificationCenter.default.removeObserver(cancelObserver!)
     }
     
     @objc func closeButtonPressed() {
+        print(4. closeButtonPressed)
         NotificationCenter.default.post(name: .ScanCanceled, object: nil)
     }
     
     @MainActor private func getQrCode() -> Bool {
+        print(5. getQrCode)
         viewController.delegate = self
         
         let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.filter({ (w) -> Bool in
@@ -84,6 +90,7 @@ public class NativeQrPlugin: UIViewController, FlutterPlugin, DataScannerViewCon
         rootViewController?.present(viewController, animated: false)
 
         do {
+            print(6. startScanning)
             try viewController.startScanning()
             return true
         }
